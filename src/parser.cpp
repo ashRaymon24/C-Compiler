@@ -195,6 +195,17 @@ Statement* Parser::parseStatement() {
 
         return decl;
     }
+    else if (match(TokenType::IDENTIFIER)) {
+        Token id = previous();
+        consume(TokenType::ASSIGN);
+        Expression* exp = parseExpression();
+        consume(TokenType::SEMICOLON);
+        auto* assign = new AssignmentStatement();
+        assign->name = id.lexeme;
+        assign->value = exp;
+
+        return assign;
+    }
     else if (match(TokenType::IF)) {
         consume(TokenType::LEFT_PAREN);
         Expression* condition = parseExpression();
@@ -211,6 +222,24 @@ Statement* Parser::parseStatement() {
         consume(TokenType::RIGHT_BRACE);
 
         return ifStmt;
+    }
+    else if (match(TokenType::WHILE)){
+        consume(TokenType::LEFT_PAREN);
+        Expression* condition = parseExpression();
+        consume(TokenType::RIGHT_PAREN);
+
+        consume(TokenType::LEFT_BRACE);
+
+        auto* whileStmt = new WhileStatement();
+        whileStmt->condition = condition;
+
+        while (!check(TokenType::RIGHT_BRACE)) {
+            whileStmt->body.push_back(parseStatement());
+        }
+
+        consume(TokenType::RIGHT_BRACE);
+
+        return whileStmt;
     }
 
     throw std::runtime_error("Expected statement.");

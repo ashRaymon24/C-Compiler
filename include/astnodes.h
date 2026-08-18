@@ -57,7 +57,19 @@ public:
     std::string name;
 };
 
+class AssignmentStatement : public Statement {
+public:
+    std::string name;
+    Expression* value;
+};
+
 class IfStatement : public Statement {
+public:
+    Expression* condition;
+    std::vector<Statement*> body;
+};
+
+class WhileStatement : public Statement {
 public:
     Expression* condition;
     std::vector<Statement*> body;

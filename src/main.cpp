@@ -38,6 +38,12 @@ static std::string describeStatement(const Statement* stmt) {
 	if (const auto* ifStmt = dynamic_cast<const IfStatement*>(stmt)) {
 		return "if (" + describeExpression(ifStmt->condition) + ") { ... }";
 	}
+	if (const auto* assignStmt = dynamic_cast<const AssignmentStatement*>(stmt)) {
+		return assignStmt->name + " = " + describeExpression(assignStmt->value) + ";";
+	}
+	if (const auto* whileStmt = dynamic_cast<const WhileStatement*>(stmt)) {
+		return "while (" + describeExpression(whileStmt->condition) + ") { ... }";
+	}
 
     return "statement";
 }
@@ -47,11 +53,11 @@ int main() {
 int main() {
     int x = 5;
 
-    if (x > 3) {
-        return x;
+    while (x > 0) {
+        x = x - 1;
     }
 
-    return 0;
+    return x;
 }
 )";
 
