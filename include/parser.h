@@ -22,6 +22,7 @@ class Parser {
         Expression* parsePrimary();
         Expression* parseTerm();
         Expression* parseFactor();
+        Expression* parseComparison();
 
         Token peek() const;
         Token advance();

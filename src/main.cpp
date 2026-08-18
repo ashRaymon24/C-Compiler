@@ -35,6 +35,9 @@ static std::string describeStatement(const Statement* stmt) {
     if (const auto* ret = dynamic_cast<const ReturnStatement*>(stmt)) {
         return "return " + describeExpression(ret->value) + ";";
     }
+	if (const auto* ifStmt = dynamic_cast<const IfStatement*>(stmt)) {
+		return "if (" + describeExpression(ifStmt->condition) + ") { ... }";
+	}
 
     return "statement";
 }
@@ -43,7 +46,12 @@ int main() {
     const std::string source = R"(
 int main() {
     int x = 5;
-    return x + 2;
+
+    if (x > 3) {
+        return x;
+    }
+
+    return 0;
 }
 )";
 

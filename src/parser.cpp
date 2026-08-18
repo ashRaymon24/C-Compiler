@@ -50,6 +50,7 @@ Token Parser::consume(TokenType type) {
 }
 
 Expression* Parser::parsePrimary() {
+    /*
     if (check(TokenType::INTEGER)) {
         Token token = advance();
 
@@ -68,9 +69,29 @@ Expression* Parser::parsePrimary() {
     }
 
     throw std::runtime_error("Expected primary expression.");
+    */
+    if (match(TokenType::INTEGER)) {
+        Token token = previous();
+
+        auto* literal = new IntegerLiteral();
+        literal->value = std::stoi(token.lexeme);
+
+        return literal;
+    }
+    else if (match(TokenType::IDENTIFIER)) {
+        Token token = previous();
+
+        auto* variable = new VariableExpression();
+        variable->name = token.lexeme;
+
+        return variable;
+    }
+
+    throw std::runtime_error("Expected primary expression.");
 }
 
 Expression* Parser::parseExpression() {
+    /*
     Expression* left = parsePrimary();
     while (
         match(TokenType::PLUS) ||
@@ -91,6 +112,63 @@ Expression* Parser::parseExpression() {
         left = binary;
     }
 
+    return left;
+    */
+    return parseComparison();
+}
+Expression* Parser::parseComparison() {
+    Expression* left = parseTerm();
+    while (
+        match(TokenType::NOTEQUALTO) ||
+        match(TokenType::EQUALTO) ||
+        match(TokenType::GREATERTHAN) ||
+        match(TokenType::LESSTHAN) ||
+        match(TokenType::GREATEREQUALTO) ||
+        match(TokenType::LESSEQUALTO)
+    )
+    {
+        Token op = previous();
+
+        Expression* right = parseTerm();
+
+        auto* binary = new BinaryExpression();
+        binary->left = left;
+        binary->op = op;
+        binary->right = right;
+
+        left = binary;
+    }
+
+    return left;
+}
+Expression* Parser::parseTerm() {
+    Expression* left = parseFactor();
+    while (match(TokenType::PLUS) || match(TokenType::MINUS)) {
+        Token op = previous();
+        Expression* right = parseFactor();
+
+        auto* binary = new BinaryExpression();
+        binary->left = left;
+        binary->op = op;
+        binary->right = right;
+
+        left = binary;
+    }
+    return left;
+}
+Expression* Parser::parseFactor() {
+    Expression* left = parsePrimary();
+    while (match(TokenType::STAR) || match(TokenType::SLASH)) {
+        Token op = previous();
+        Expression* right = parsePrimary();
+
+        auto* binary = new BinaryExpression();
+        binary->left = left;
+        binary->op = op;
+        binary->right = right;
+
+        left = binary;
+    }
     return left;
 }
 
@@ -116,6 +194,23 @@ Statement* Parser::parseStatement() {
         decl->initializer = exp;
 
         return decl;
+    }
+    else if (match(TokenType::IF)) {
+        consume(TokenType::LEFT_PAREN);
+        Expression* condition = parseExpression();
+        consume(TokenType::RIGHT_PAREN);
+        consume(TokenType::LEFT_BRACE);
+
+        auto* ifStmt = new IfStatement();
+        ifStmt->condition = condition;
+
+        while (!check(TokenType::RIGHT_BRACE)) {
+            ifStmt->body.push_back(parseStatement());
+        }
+
+        consume(TokenType::RIGHT_BRACE);
+
+        return ifStmt;
     }
 
     throw std::runtime_error("Expected statement.");

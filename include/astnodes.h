@@ -56,3 +56,9 @@ class VariableExpression : public Expression {
 public:
     std::string name;
 };
+
+class IfStatement : public Statement {
+public:
+    Expression* condition;
+    std::vector<Statement*> body;
+};
