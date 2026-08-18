@@ -19,6 +19,9 @@ class Parser {
         Function* parseFunction();
         Statement* parseStatement();
         Expression* parseExpression();
+        Expression* parsePrimary();
+        Expression* parseTerm();
+        Expression* parseFactor();
 
         Token peek() const;
         Token advance();

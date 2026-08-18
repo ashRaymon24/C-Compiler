@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include "token.h"
 
 class Function;
 class Statement;
@@ -36,4 +37,22 @@ public:
 class IntegerLiteral : public Expression {
 public:
     int value;
+};
+
+class BinaryExpression : public Expression {
+public:
+    Expression* left;
+    Token op; 
+    Expression* right;
+};
+
+class VariableDeclaration : public Statement {
+public:
+    std::string name;
+    Expression* initializer;
+};
+
+class VariableExpression : public Expression {
+public:
+    std::string name;
 };

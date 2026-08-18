@@ -1,5 +1,7 @@
 #include "lexer.h"
 
+#include <cctype>
+
 Lexer::Lexer(const std::string& source) : source_(source) {}
 
 char Lexer::advance() {
@@ -43,13 +45,14 @@ Token Lexer::makeToken(TokenType type) {
     std::string lexeme = source_.substr(current_ - 1, 1);
     return Token(type, lexeme, line);
 }
+
 Token Lexer::identifier() {
     size_t start = current_ - 1;
     while (isalnum(peek()) || peek() == '_') {
         advance();
     }
     std::string lexeme = source_.substr(start, current_ - start);
-    TokenType type = TokenType::IDENTIFIER; // Default to IDENTIFIER
+    TokenType type = TokenType::IDENTIFIER;
     if (lexeme == "int") type = TokenType::INT;
     else if (lexeme == "return") type = TokenType::RETURN;
     else if (lexeme == "if") type = TokenType::IF;
@@ -58,6 +61,7 @@ Token Lexer::identifier() {
     else if (lexeme == "for") type = TokenType::FOR;
     return Token(type, lexeme, line);
 }
+
 Token Lexer::number() {
     size_t start = current_ - 1;
     while (isdigit(peek())) {
@@ -66,6 +70,7 @@ Token Lexer::number() {
     std::string lexeme = source_.substr(start, current_ - start);
     return Token(TokenType::INTEGER, lexeme, line);
 }
+
 Token Lexer::scanToken() {
     skipWhitespace();
     if (isAtEnd()) return Token(TokenType::END_OF_FILE, "", line);
@@ -94,8 +99,8 @@ Token Lexer::scanToken() {
                 advance();
                 return Token(TokenType::NOTEQUALTO, "!=", line);
             }
-            return makeToken(TokenType::NOT); 
-        } 
+            return makeToken(TokenType::NOT);
+        }
         case '<': {
             if (peek() == '=') {
                 advance();
@@ -116,9 +121,20 @@ Token Lexer::scanToken() {
             } else if (isdigit(c)) {
                 return number();
             } else {
-                // Handle unexpected character
                 std::string lexeme(1, c);
-                return Token(TokenType::UNKNOWN, lexeme, line); // Placeholder for error handling
+                return Token(TokenType::UNKNOWN, lexeme, line);
             }
     }
+}
+
+std::vector<Token> Lexer::tokenize() {
+    std::vector<Token> tokens;
+    while (true) {
+        Token token = scanToken();
+        tokens.push_back(token);
+        if (token.type == TokenType::END_OF_FILE) {
+            break;
+        }
+    }
+    return tokens;
 }

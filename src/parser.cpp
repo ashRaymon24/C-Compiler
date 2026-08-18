@@ -49,8 +49,7 @@ Token Parser::consume(TokenType type) {
     throw std::runtime_error("Unexpected token.");
 }
 
-
-Expression* Parser::parseExpression() {
+Expression* Parser::parsePrimary() {
     if (check(TokenType::INTEGER)) {
         Token token = advance();
 
@@ -59,9 +58,42 @@ Expression* Parser::parseExpression() {
 
         return literal;
     }
+    else if (check(TokenType::IDENTIFIER)) {
+        Token token = advance();
 
-    throw std::runtime_error("Expected expression.");
+        auto* variable = new VariableExpression();
+        variable->name = token.lexeme;
+
+        return variable;
+    }
+
+    throw std::runtime_error("Expected primary expression.");
 }
+
+Expression* Parser::parseExpression() {
+    Expression* left = parsePrimary();
+    while (
+        match(TokenType::PLUS) ||
+        match(TokenType::MINUS) ||
+        match(TokenType::STAR) ||
+        match(TokenType::SLASH)
+    )
+    {
+        Token op = previous();
+
+        Expression* right = parsePrimary();
+
+        auto* binary = new BinaryExpression();
+        binary->left = left;
+        binary->op = op;
+        binary->right = right;
+
+        left = binary;
+    }
+
+    return left;
+}
+
 
 
 Statement* Parser::parseStatement() {
@@ -73,6 +105,17 @@ Statement* Parser::parseStatement() {
         consume(TokenType::SEMICOLON);
 
         return stmt;
+    }
+    else if (match(TokenType::INT)){
+        Token id = consume(TokenType::IDENTIFIER);
+        consume(TokenType::ASSIGN);
+        Expression* exp = parseExpression();
+        consume(TokenType::SEMICOLON);
+        auto* decl = new VariableDeclaration();
+        decl->name = id.lexeme;
+        decl->initializer = exp;
+
+        return decl;
     }
 
     throw std::runtime_error("Expected statement.");

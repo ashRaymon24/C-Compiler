@@ -47,6 +47,8 @@ struct Token{
     std::string lexeme;
     int line;
 
+    Token() : type(TokenType::UNKNOWN), lexeme(""), line(0) {}
+
     Token(TokenType type, const std::string& lexeme, int line)
         : type(type), lexeme(lexeme), line(line) {}
 };
