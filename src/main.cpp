@@ -1,6 +1,7 @@
 #include "lexer.h"
 #include "parser.h"
 #include "astnodes.h"
+#include "semanticAnalyser.h"
 
 #include <iostream>
 #include <string>
@@ -51,13 +52,7 @@ static std::string describeStatement(const Statement* stmt) {
 int main() {
     const std::string source = R"(
 int main() {
-    int x = 5;
-
-    while (x > 0) {
-        x = x - 1;
-    }
-
-    return x;
+    int x = y;
 }
 )";
 
@@ -67,7 +62,11 @@ int main() {
     Parser parser(tokens);
     Program program = parser.parse();
 
+    SemanticAnalyser analyser;
+    analyser.analyse(program);
+
     std::cout << "Parsed functions: " << program.functions.size() << "\n";
+    std::cout << "Semantic analysis: OK\n";
 
     for (const Function* function : program.functions) {
         std::cout << "Function: " << function->name << "\n";
