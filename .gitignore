@@ -36,6 +36,9 @@
 *.x86_64
 *.hex
 
+# Generated compiler output
+output.s
+
 # Debug files
 *.dSYM/
 *.su

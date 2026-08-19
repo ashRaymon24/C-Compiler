@@ -2,6 +2,7 @@
 #include "parser.h"
 #include "astnodes.h"
 #include "semanticAnalyser.h"
+#include "codeGenerator.h"
 
 #include <iostream>
 #include <string>
@@ -52,7 +53,7 @@ static std::string describeStatement(const Statement* stmt) {
 int main() {
     const std::string source = R"(
 int main() {
-    int x = y;
+    return 42;
 }
 )";
 
@@ -65,8 +66,12 @@ int main() {
     SemanticAnalyser analyser;
     analyser.analyse(program);
 
+    CodeGenerator generator;
+    generator.generate(&program);
+
     std::cout << "Parsed functions: " << program.functions.size() << "\n";
     std::cout << "Semantic analysis: OK\n";
+    std::cout << "Generated assembly: output.s\n";
 
     for (const Function* function : program.functions) {
         std::cout << "Function: " << function->name << "\n";
