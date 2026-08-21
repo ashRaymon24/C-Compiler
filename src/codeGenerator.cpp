@@ -45,6 +45,14 @@ void CodeGenerator::generateStatement(Statement* stmt) {
         int offset = variableOffsets[varDecl->name];
         emit("mov DWORD PTR [rbp-" + std::to_string(offset) + "], eax");
     }
+    else if (auto* assignStmt = dynamic_cast<AssignmentStatement*>(stmt)) {
+        generateExpression(assignStmt->value);
+        auto it = variableOffsets.find(assignStmt->name);
+        if (it != variableOffsets.end()) {
+            int offset = it->second;
+            emit("mov DWORD PTR [rbp-" + std::to_string(offset) + "], eax");
+        }
+    }
 }
 void CodeGenerator::generateExpression(Expression* expr) {
     if (auto* intLiteral = dynamic_cast<IntegerLiteral*>(expr)) {
