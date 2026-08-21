@@ -1,6 +1,7 @@
 #pragma once
 #include "astnodes.h"
 #include <fstream>
+#include <unordered_map>
 
 class CodeGenerator {
 public:
@@ -8,7 +9,8 @@ public:
 
 private:
     std::ofstream output;
-    
+    std::unordered_map<std::string, int> variableOffsets;
+    int nextOffset;
     void generateFunction(Function* function);
     void generateStatement(Statement* stmt);
     void generateExpression(Expression* expr);
