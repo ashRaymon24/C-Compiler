@@ -10,6 +10,7 @@ public:
 private:
     std::ofstream output;
     std::unordered_map<std::string, int> variableOffsets;
+    std::string functionName; // Store the current function name
     int nextOffset;
     void generateFunction(Function* function);
     void generateStatement(Statement* stmt);

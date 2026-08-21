@@ -24,10 +24,11 @@ void CodeGenerator::generateFunction(Function* function) {
     emit("sub rsp, " + std::to_string(stackSize)); // Allocate space for local variables
     nextOffset = 4;
     variableOffsets.clear(); // Clear previous variable offsets for the new function
+    functionName = function->name; // Store the current function name
     for (Statement* stmt : function->body) {
         generateStatement(stmt);
     }
-    emit(".Lreturn_" + function->name + ":");
+    emit(".Lreturn_" + functionName + ":");
     emit("mov rsp, rbp");
     emit("pop rbp");
     emit("ret");
@@ -35,7 +36,7 @@ void CodeGenerator::generateFunction(Function* function) {
 void CodeGenerator::generateStatement(Statement* stmt) {
     if (auto* retStmt = dynamic_cast<ReturnStatement*>(stmt)) {
         generateExpression(retStmt->value);
-        emit("jmp .Lreturn_" + function->name);
+        emit("jmp .Lreturn_" + functionName);
     }
     else if (auto* varDecl = dynamic_cast<VariableDeclaration*>(stmt)) {
         generateExpression(varDecl->initializer);
