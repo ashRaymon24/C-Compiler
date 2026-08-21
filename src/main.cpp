@@ -53,7 +53,7 @@ static std::string describeStatement(const Statement* stmt) {
 int main() {
     const std::string source = R"(
 int main() {
-    return 42;
+    return 2 + 3 * 5;
 }
 )";
 

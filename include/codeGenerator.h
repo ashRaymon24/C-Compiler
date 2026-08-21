@@ -8,6 +8,7 @@ public:
 
 private:
     std::ofstream output;
+    
     void generateFunction(Function* function);
     void generateStatement(Statement* stmt);
     void generateExpression(Expression* expr);
