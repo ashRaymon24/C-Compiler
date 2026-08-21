@@ -15,14 +15,19 @@ void CodeGenerator::generate(Program* program) {
     output.close();
 }
 void CodeGenerator::generateFunction(Function* function) {
+    int variableCount = countVariables(function);
+    int byteCount = variableCount * 4; 
+    int stackSize = ((byteCount + 15) / 16) * 16; // Round up to the nearest multiple of 16
     emit(function->name + ":");
     emit("push rbp");
     emit("mov rbp, rsp");
-    emit("sub rsp, 16"); // Allocate space for local variables
+    emit("sub rsp, " + std::to_string(stackSize)); // Allocate space for local variables
     nextOffset = 4;
+    variableOffsets.clear(); // Clear previous variable offsets for the new function
     for (Statement* stmt : function->body) {
         generateStatement(stmt);
     }
+    emit(".Lreturn_" + function->name + ":");
     emit("mov rsp, rbp");
     emit("pop rbp");
     emit("ret");
@@ -30,6 +35,7 @@ void CodeGenerator::generateFunction(Function* function) {
 void CodeGenerator::generateStatement(Statement* stmt) {
     if (auto* retStmt = dynamic_cast<ReturnStatement*>(stmt)) {
         generateExpression(retStmt->value);
+        emit("jmp .Lreturn_" + function->name);
     }
     else if (auto* varDecl = dynamic_cast<VariableDeclaration*>(stmt)) {
         generateExpression(varDecl->initializer);
@@ -69,4 +75,16 @@ void CodeGenerator::generateExpression(Expression* expr) {
             emit("mov eax, DWORD PTR [rbp-" + std::to_string(it->second) + "]");
         }
     }
+}
+
+int CodeGenerator::countVariables(Function* function) {
+    int count = 0;
+
+    for (Statement* stmt : function->body) {
+        if (dynamic_cast<VariableDeclaration*>(stmt)) {
+            count++;
+        }
+    }
+
+    return count;
 }

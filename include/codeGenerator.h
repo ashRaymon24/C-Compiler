@@ -16,4 +16,5 @@ private:
     void generateExpression(Expression* expr);
     
     void emit(const std::string& line);
+    int countVariables(Function* function);
 };
