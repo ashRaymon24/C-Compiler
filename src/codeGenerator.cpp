@@ -53,6 +53,29 @@ void CodeGenerator::generateStatement(Statement* stmt) {
             emit("mov DWORD PTR [rbp-" + std::to_string(offset) + "], eax");
         }
     }
+    else if (auto* ifStmt = dynamic_cast<IfStatement*>(stmt)) {
+        std::string endLabel = ".Lif_" + functionName + std::to_string(labelCounter++);
+        generateExpression(ifStmt->condition);
+        emit("cmp rax, 0");
+        emit("je " + endLabel);
+        for (Statement* bodyStmt : ifStmt->body) {
+            generateStatement(bodyStmt);
+        }
+        emit(endLabel + ":");
+    }
+    else if (auto* whileStmt = dynamic_cast<WhileStatement*>(stmt)) {
+        std::string beginLabel = ".Lwhile_begin_" + functionName + std::to_string(labelCounter);
+        std::string endLabel = ".Lwhile_end_" + functionName + std::to_string(labelCounter++);
+        emit(beginLabel + ":");
+        generateExpression(whileStmt->condition);
+        emit("cmp rax, 0");
+        emit("je " + endLabel);
+        for (Statement* bodyStmt : whileStmt->body) {
+            generateStatement(bodyStmt);
+        }
+        emit("jmp " + beginLabel);
+        emit(endLabel + ":");
+    }
 }
 void CodeGenerator::generateExpression(Expression* expr) {
     if (auto* intLiteral = dynamic_cast<IntegerLiteral*>(expr)) {
@@ -76,6 +99,36 @@ void CodeGenerator::generateExpression(Expression* expr) {
             emit("mov rax, rbx"); // Move divisor to rax
             emit("cqo");          // Sign-extend rax into rdx:rax
             emit("idiv rcx");     // Divide rcx by rax, result in rax
+        }
+        else if (binaryExpr->op.type == TokenType::GREATERTHAN) {
+            emit("cmp rbx, rax");
+            emit("setg al");
+            emit("movzx eax, al");
+        }
+        else if (binaryExpr->op.type == TokenType::LESSTHAN) {
+            emit("cmp rbx, rax");
+            emit("setl al");
+            emit("movzx eax, al");
+        }
+        else if (binaryExpr->op.type == TokenType::EQUALTO) {
+            emit("cmp rbx, rax");
+            emit("sete al");
+            emit("movzx eax, al");
+        }
+        else if (binaryExpr->op.type == TokenType::NOTEQUALTO) {
+            emit("cmp rbx, rax");
+            emit("setne al");
+            emit("movzx eax, al");
+        }
+        else if (binaryExpr->op.type == TokenType::GREATEREQUALTO) {
+            emit("cmp rbx, rax");
+            emit("setge al");
+            emit("movzx eax, al");
+        }
+        else if (binaryExpr->op.type == TokenType::LESSEQUALTO) {
+            emit("cmp rbx, rax");
+            emit("setle al");
+            emit("movzx eax, al");
         }
     }
     else if (auto* varExpr = dynamic_cast<VariableExpression*>(expr)) {
