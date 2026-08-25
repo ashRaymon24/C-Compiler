@@ -50,26 +50,7 @@ Token Parser::consume(TokenType type) {
 }
 
 Expression* Parser::parsePrimary() {
-    /*
-    if (check(TokenType::INTEGER)) {
-        Token token = advance();
 
-        auto* literal = new IntegerLiteral();
-        literal->value = std::stoi(token.lexeme);
-
-        return literal;
-    }
-    else if (check(TokenType::IDENTIFIER)) {
-        Token token = advance();
-
-        auto* variable = new VariableExpression();
-        variable->name = token.lexeme;
-
-        return variable;
-    }
-
-    throw std::runtime_error("Expected primary expression.");
-    */
     if (match(TokenType::INTEGER)) {
         Token token = previous();
 
@@ -91,29 +72,7 @@ Expression* Parser::parsePrimary() {
 }
 
 Expression* Parser::parseExpression() {
-    /*
-    Expression* left = parsePrimary();
-    while (
-        match(TokenType::PLUS) ||
-        match(TokenType::MINUS) ||
-        match(TokenType::STAR) ||
-        match(TokenType::SLASH)
-    )
-    {
-        Token op = previous();
 
-        Expression* right = parsePrimary();
-
-        auto* binary = new BinaryExpression();
-        binary->left = left;
-        binary->op = op;
-        binary->right = right;
-
-        left = binary;
-    }
-
-    return left;
-    */
     return parseComparison();
 }
 Expression* Parser::parseComparison() {
@@ -220,7 +179,18 @@ Statement* Parser::parseStatement() {
         }
 
         consume(TokenType::RIGHT_BRACE);
+        
+        if (match(TokenType::ELSE))
+        {
+            consume(TokenType::LEFT_BRACE);
 
+            while (!check(TokenType::RIGHT_BRACE))
+            {
+                ifStmt->elseBody.push_back(parseStatement());
+            }
+
+            consume(TokenType::RIGHT_BRACE);
+        }
         return ifStmt;
     }
     else if (match(TokenType::WHILE)){

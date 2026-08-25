@@ -55,11 +55,17 @@ void CodeGenerator::generateStatement(Statement* stmt) {
     }
     else if (auto* ifStmt = dynamic_cast<IfStatement*>(stmt)) {
         std::string endLabel = ".Lif_" + functionName + std::to_string(labelCounter++);
+        std::string elseLabel = ".Lelse_" + functionName + std::to_string(labelCounter++);
         generateExpression(ifStmt->condition);
         emit("cmp rax, 0");
-        emit("je " + endLabel);
+        emit("je " + elseLabel);
         for (Statement* bodyStmt : ifStmt->body) {
             generateStatement(bodyStmt);
+        }
+        emit("jmp " + endLabel);
+        emit(elseLabel + ":");
+        for (Statement* elseStmt : ifStmt->elseBody) {
+            generateStatement(elseStmt);
         }
         emit(endLabel + ":");
     }

@@ -67,7 +67,7 @@ class IfStatement : public Statement {
 public:
     Expression* condition;
     std::vector<Statement*> body;
-    
+    std::vector<Statement*> elseBody;
 };
 
 class WhileStatement : public Statement {

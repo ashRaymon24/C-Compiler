@@ -53,8 +53,11 @@ static std::string describeStatement(const Statement* stmt) {
 int main() {
     const std::string source = R"(
 int main() {
-    return 5 <= 3;
-	
+    if (0) {
+		return 5;
+	} else {
+		return 10;
+	}
 }
 )";
 
